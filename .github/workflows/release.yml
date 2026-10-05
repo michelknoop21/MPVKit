@@ -73,7 +73,7 @@ jobs:
           * placebo version: v{libplacebo_version}
           * MoltenVK version: v{vulkan_version}
 
-          Binaries are pinned by content hash from the [rolling binaries](https://github.com/edde746/MPVKit/releases/tag/binaries) prerelease; this tag carries no assets of its own.
+          Binaries are pinned by content hash from the [rolling binaries](https://github.com/michelknoop21/MPVKit/releases/tag/binaries) prerelease; this tag carries no assets of its own.
           ''').strip() + '\n', encoding='utf-8')
           PY
 

@@ -1,5 +1,5 @@
 {
-  "assetBase": "https://github.com/edde746/MPVKit/releases/download/binaries",
+  "assetBase": "https://github.com/michelknoop21/MPVKit/releases/download/binaries",
   "libraries": {
     "FFmpeg": {
       "frameworks": {

@@ -2,7 +2,7 @@ SPDX-License-Identifier: GPL-3.0-only
 Copyright (C) 2025-2026 edde746
 
 diff --git a/audio/out/ao_avfoundation.m b/audio/out/ao_avfoundation.m
-index 2bd1392..09c5d4a 100644
+index 2bd1392..412b991 100644
 --- a/audio/out/ao_avfoundation.m
 +++ b/audio/out/ao_avfoundation.m
 @@ -106,6 +106,14 @@ - (void)invalidate;
@@ -16,7 +16,7 @@ index 2bd1392..09c5d4a 100644
 +    bool pcm_stopped;
 +    // Set by uninit() before it stops the AO, so a restart notification that
 +    // is already being delivered cannot stop()/start() it back to life.
-+    volatile bool closing;
++    bool closing;  // guarded by @synchronized (observer)
      // Whether this AO accepts compressed AC3/EAC3 and routes it through
      // AVPlayer. Disable to let the next configured audio output handle the
      // bitstream instead.
@@ -49,31 +49,50 @@ index 2bd1392..09c5d4a 100644
          [p->renderer stopRequestingMediaData];
          [p->renderer flush];
          [p->synchronizer setRate:0];
-@@ -975,6 +991,9 @@ - (instancetype)initWithAO:(struct ao*)_ao {
+@@ -974,12 +990,20 @@ - (instancetype)initWithAO:(struct ao*)_ao {
+     return self;
  }
  - (void)handleRestartNotification:(NSNotification*)notification {
-     char *name = cfstr_get_cstr((CFStringRef)notification.name);
+-    char *name = cfstr_get_cstr((CFStringRef)notification.name);
+-    MP_WARN(ao, "restarting due to system notification; this will cause desync\n");
+-    MP_VERBOSE(ao, "notification name: %s\n", name);
+-    talloc_free(name);
+-    stop(ao);
+-    start(ao);
 +    struct priv *p = ao->priv;
-+    if (p->closing)
-+        return;
-     MP_WARN(ao, "restarting due to system notification; this will cause desync\n");
-     MP_VERBOSE(ao, "notification name: %s\n", name);
-     talloc_free(name);
-@@ -1303,6 +1322,13 @@ static void uninit(struct ao *ao)
++    // Held across stop()/start() so uninit() can wait for a delivery that is
++    // already running: it sets closing under the same lock, and only then
++    // releases the renderer, synchronizer, queue and AO.
++    @synchronized (self) {
++        if (p->closing)
++            return;
++        char *name = cfstr_get_cstr((CFStringRef)notification.name);
++        MP_WARN(ao, "restarting due to system notification; this will cause desync\n");
++        MP_VERBOSE(ao, "notification name: %s\n", name);
++        talloc_free(name);
++        stop(ao);
++        start(ao);
++    }
+ }
+ @end
+ 
+@@ -1303,6 +1327,15 @@ static void uninit(struct ao *ao)
  {
      struct priv *p = ao->priv;
  
 +    if (!p->spdif) {
 +        // No restart notification may run stop()/start() once teardown begins:
 +        // start() would queue a new feed block after the drain below.
-+        p->closing = true;
++        @synchronized (p->observer) {
++            p->closing = true;
++        }
 +        [[NSNotificationCenter defaultCenter] removeObserver:p->observer];
 +    }
 +
      stop(ao);
  
      if (p->spdif) {
-@@ -1331,13 +1357,15 @@ static void uninit(struct ao *ao)
+@@ -1331,13 +1364,15 @@ static void uninit(struct ao *ao)
              p->feed_timer = NULL;
          }
  #endif

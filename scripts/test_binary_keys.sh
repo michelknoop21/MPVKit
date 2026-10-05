@@ -266,7 +266,7 @@ with tempfile.TemporaryDirectory() as tmp:
 
     package = (repo / "Package.swift").read_text()
     check(
-        f'url: "https://github.com/edde746/MPVKit/releases/download/binaries/{asset}"' in package,
+        f'url: "https://github.com/michelknoop21/MPVKit/releases/download/binaries/{asset}"' in package,
         "Package.swift points at the content-addressed asset",
     )
     check(digest in package, "Package.swift carries the recorded checksum")
@@ -318,7 +318,7 @@ with tempfile.TemporaryDirectory() as tmp:
     # get in the way of a local build either.
     package_path.write_text(
         good_package.replace(
-            f'url: "https://github.com/edde746/MPVKit/releases/download/binaries/'
+            f'url: "https://github.com/michelknoop21/MPVKit/releases/download/binaries/'
             f'{manifest_of(repo)["libraries"]["libmpv"]["frameworks"]["Libmpv"]["asset"]}",\n'
             f'            checksum: "{manifest_of(repo)["libraries"]["libmpv"]["frameworks"]["Libmpv"]["checksum"]}"',
             'path: "dist/release/Libmpv.xcframework.zip"',

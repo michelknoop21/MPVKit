@@ -52,7 +52,7 @@ SELF_BUILT = ("libass", "FFmpeg", "libmpv")
 # a different platform set are different artifacts.
 CANONICAL_PLATFORMS = ("ios", "isimulator", "maccatalyst", "macos", "tvos", "tvsimulator")
 
-DEFAULT_ASSET_BASE = "https://github.com/edde746/MPVKit/releases/download/binaries"
+DEFAULT_ASSET_BASE = "https://github.com/michelknoop21/MPVKit/releases/download/binaries"
 
 MANIFEST_PATH = Path("Sources/BuildScripts/binaries.json")
 TOOLCHAIN_PATH = Path("Sources/BuildScripts/toolchain.txt")
