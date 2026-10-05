@@ -1,0 +1,69 @@
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (C) 2025-2026 edde746
+
+diff --git a/audio/out/ao_avfoundation.m b/audio/out/ao_avfoundation.m
+index 2bd1392..c6da54e 100644
+--- a/audio/out/ao_avfoundation.m
++++ b/audio/out/ao_avfoundation.m
+@@ -106,6 +106,11 @@ - (void)invalidate;
+     int avp_last_tcs;            // last logged AVPlayerTimeControlStatus
+     int avp_heartbeat;           // verbose position log divider
+     int64_t avp_lead_ns;         // steady-state ES feed lead (from option)
++    // PCM path only. stop() sets it and start() clears it, both on p->queue.
++    // A feed block AVFoundation already queued can still run after stop();
++    // feed() must then not touch the renderer or the synchronizer, which
++    // uninit() releases right after draining the queue.
++    bool pcm_stopped;
+     // Whether this AO accepts compressed AC3/EAC3 and routes it through
+     // AVPlayer. Disable to let the next configured audio output handle the
+     // bitstream instead.
+@@ -725,6 +730,9 @@ static void feed(struct ao *ao)
+     int samplerate = ao->samplerate;
+     int sstride = ao->sstride;
+ 
++    if (p->pcm_stopped)
++        return;
++
+ #if TARGET_OS_OSX
+     if (p->pcm_lookahead_ns) {
+         int64_t now = CMTimeGetNanoseconds([p->synchronizer currentTime]);
+@@ -833,6 +841,10 @@ static void start(struct ao *ao)
+     }
+ 
+     p->end_time_av = -1;
++    if (dispatch_get_specific(&avfoundation_queue_key) == p)
++        p->pcm_stopped = false;
++    else
++        dispatch_sync(p->queue, ^{ p->pcm_stopped = false; });
+     [p->synchronizer setRate:1];
+ #if TARGET_OS_OSX
+     // With no bound there is nothing to gate, so arm exactly as before rather
+@@ -858,6 +870,7 @@ static void stop(struct ao *ao)
+             avp_teardown_item(ao);
+             return;
+         }
++        p->pcm_stopped = true;
+         [p->renderer stopRequestingMediaData];
+         [p->renderer flush];
+         [p->synchronizer setRate:0];
+@@ -1331,13 +1344,17 @@ static void uninit(struct ao *ao)
+             p->feed_timer = NULL;
+         }
+ #endif
++        // stop() above flagged the PCM path stopped. Let any feed block that
++        // AVFoundation had already queued run (and bail) before the renderer
++        // and synchronizer go away, and drop the observer first so a late
++        // restart notification cannot reach a freed AO.
++        dispatch_sync(p->queue, ^{});
++        [[NSNotificationCenter defaultCenter] removeObserver:p->observer];
++        [p->observer release];
+         [p->renderer release];
+         [p->synchronizer release];
+         dispatch_release(p->queue);
+         CFRelease(p->format_description);
+-
+-        [[NSNotificationCenter defaultCenter] removeObserver:p->observer];
+-        [p->observer release];
+     }
+ 
+ #if TARGET_OS_IPHONE
