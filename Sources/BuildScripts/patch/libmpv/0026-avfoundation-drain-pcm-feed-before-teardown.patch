@@ -2,10 +2,10 @@ SPDX-License-Identifier: GPL-3.0-only
 Copyright (C) 2025-2026 edde746
 
 diff --git a/audio/out/ao_avfoundation.m b/audio/out/ao_avfoundation.m
-index 2bd1392..c6da54e 100644
+index 2bd1392..09c5d4a 100644
 --- a/audio/out/ao_avfoundation.m
 +++ b/audio/out/ao_avfoundation.m
-@@ -106,6 +106,11 @@ - (void)invalidate;
+@@ -106,6 +106,14 @@ - (void)invalidate;
      int avp_last_tcs;            // last logged AVPlayerTimeControlStatus
      int avp_heartbeat;           // verbose position log divider
      int64_t avp_lead_ns;         // steady-state ES feed lead (from option)
@@ -14,10 +14,13 @@ index 2bd1392..c6da54e 100644
 +    // feed() must then not touch the renderer or the synchronizer, which
 +    // uninit() releases right after draining the queue.
 +    bool pcm_stopped;
++    // Set by uninit() before it stops the AO, so a restart notification that
++    // is already being delivered cannot stop()/start() it back to life.
++    volatile bool closing;
      // Whether this AO accepts compressed AC3/EAC3 and routes it through
      // AVPlayer. Disable to let the next configured audio output handle the
      // bitstream instead.
-@@ -725,6 +730,9 @@ static void feed(struct ao *ao)
+@@ -725,6 +733,9 @@ static void feed(struct ao *ao)
      int samplerate = ao->samplerate;
      int sstride = ao->sstride;
  
@@ -27,7 +30,7 @@ index 2bd1392..c6da54e 100644
  #if TARGET_OS_OSX
      if (p->pcm_lookahead_ns) {
          int64_t now = CMTimeGetNanoseconds([p->synchronizer currentTime]);
-@@ -833,6 +841,10 @@ static void start(struct ao *ao)
+@@ -833,6 +844,10 @@ static void start(struct ao *ao)
      }
  
      p->end_time_av = -1;
@@ -38,7 +41,7 @@ index 2bd1392..c6da54e 100644
      [p->synchronizer setRate:1];
  #if TARGET_OS_OSX
      // With no bound there is nothing to gate, so arm exactly as before rather
-@@ -858,6 +870,7 @@ static void stop(struct ao *ao)
+@@ -858,6 +873,7 @@ static void stop(struct ao *ao)
              avp_teardown_item(ao);
              return;
          }
@@ -46,16 +49,38 @@ index 2bd1392..c6da54e 100644
          [p->renderer stopRequestingMediaData];
          [p->renderer flush];
          [p->synchronizer setRate:0];
-@@ -1331,13 +1344,17 @@ static void uninit(struct ao *ao)
+@@ -975,6 +991,9 @@ - (instancetype)initWithAO:(struct ao*)_ao {
+ }
+ - (void)handleRestartNotification:(NSNotification*)notification {
+     char *name = cfstr_get_cstr((CFStringRef)notification.name);
++    struct priv *p = ao->priv;
++    if (p->closing)
++        return;
+     MP_WARN(ao, "restarting due to system notification; this will cause desync\n");
+     MP_VERBOSE(ao, "notification name: %s\n", name);
+     talloc_free(name);
+@@ -1303,6 +1322,13 @@ static void uninit(struct ao *ao)
+ {
+     struct priv *p = ao->priv;
+ 
++    if (!p->spdif) {
++        // No restart notification may run stop()/start() once teardown begins:
++        // start() would queue a new feed block after the drain below.
++        p->closing = true;
++        [[NSNotificationCenter defaultCenter] removeObserver:p->observer];
++    }
++
+     stop(ao);
+ 
+     if (p->spdif) {
+@@ -1331,13 +1357,15 @@ static void uninit(struct ao *ao)
              p->feed_timer = NULL;
          }
  #endif
 +        // stop() above flagged the PCM path stopped. Let any feed block that
 +        // AVFoundation had already queued run (and bail) before the renderer
-+        // and synchronizer go away, and drop the observer first so a late
-+        // restart notification cannot reach a freed AO.
++        // and synchronizer go away.
 +        dispatch_sync(p->queue, ^{});
-+        [[NSNotificationCenter defaultCenter] removeObserver:p->observer];
 +        [p->observer release];
          [p->renderer release];
          [p->synchronizer release];
