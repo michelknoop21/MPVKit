@@ -4,42 +4,42 @@
     "FFmpeg": {
       "frameworks": {
         "Libavcodec": {
-          "asset": "Libavcodec-0fac40897804.xcframework.zip",
-          "checksum": "1fa00780eca1b6492e6641785beec7c47a1765895cebf2becac9ede658a825b0"
+          "asset": "Libavcodec-d86bae00c5cb.xcframework.zip",
+          "checksum": "ef706c5c33ba8ee4be653e004532893bcded8bc603a9c2ad15f1d0d6235f796f"
         },
         "Libavdevice": {
-          "asset": "Libavdevice-0fac40897804.xcframework.zip",
-          "checksum": "7f4eb247a11c0f6e7f3e5f0699b5b163753cffd380e8b3f2baf7047ac6a8383d"
+          "asset": "Libavdevice-d86bae00c5cb.xcframework.zip",
+          "checksum": "440187593d728688b029a496c8383441218ccc38cf18eae9036b690de2455877"
         },
         "Libavfilter": {
-          "asset": "Libavfilter-0fac40897804.xcframework.zip",
-          "checksum": "aaf314edbb63e0245742246a175218cefafe42f44602c6b13c50a42585bce3e4"
+          "asset": "Libavfilter-d86bae00c5cb.xcframework.zip",
+          "checksum": "28292e618dd9ac8117a62c698075fde153efb959bfcbd89066136c9bb620ade3"
         },
         "Libavformat": {
-          "asset": "Libavformat-0fac40897804.xcframework.zip",
-          "checksum": "249ae0cbae1ae3082c8c7fd7a0fe922fd0a0ee69e9d93640b25ccfdeec1b2ea2"
+          "asset": "Libavformat-d86bae00c5cb.xcframework.zip",
+          "checksum": "9f287c60d924b9eed5c34728510dd18a496bde63eef3a2496ec6589624a4fa56"
         },
         "Libavutil": {
-          "asset": "Libavutil-0fac40897804.xcframework.zip",
-          "checksum": "d441ef215030df2d1fef075636756c4bad1878028366f753290d03f6c6ace443"
+          "asset": "Libavutil-d86bae00c5cb.xcframework.zip",
+          "checksum": "971ee6b81a33d7ecbf53157ba651eb3f599ea8f5ba2b5b8b471aeebb2f11be8a"
         },
         "Libswresample": {
-          "asset": "Libswresample-0fac40897804.xcframework.zip",
-          "checksum": "ebcc9daf83af9e4b350feddae4a5653f4153d916bda30da0ff107d2222f7eeaf"
+          "asset": "Libswresample-d86bae00c5cb.xcframework.zip",
+          "checksum": "262fbc88c03ad1bf3a24e569d2169403c7fc97dfbbf8504312c1491ca13aa820"
         },
         "Libswscale": {
-          "asset": "Libswscale-0fac40897804.xcframework.zip",
-          "checksum": "0fc8b0a88d4dfdc27e86ee30d1beb0267ac28edc2f0e33f0a1cced461f8563a5"
+          "asset": "Libswscale-d86bae00c5cb.xcframework.zip",
+          "checksum": "2b559027e34998e21526d4a2ead70bcfa7ba706197616c8ed8724582d8459f62"
         }
       },
-      "key": "0fac40897804",
+      "key": "d86bae00c5cb",
       "prebuilt": {
-        "ios": "FFmpeg-all-0fac40897804-ios.zip",
-        "isimulator": "FFmpeg-all-0fac40897804-isimulator.zip",
-        "maccatalyst": "FFmpeg-all-0fac40897804-maccatalyst.zip",
-        "macos": "FFmpeg-all-0fac40897804-macos.zip",
-        "tvos": "FFmpeg-all-0fac40897804-tvos.zip",
-        "tvsimulator": "FFmpeg-all-0fac40897804-tvsimulator.zip"
+        "ios": "FFmpeg-all-d86bae00c5cb-ios.zip",
+        "isimulator": "FFmpeg-all-d86bae00c5cb-isimulator.zip",
+        "maccatalyst": "FFmpeg-all-d86bae00c5cb-maccatalyst.zip",
+        "macos": "FFmpeg-all-d86bae00c5cb-macos.zip",
+        "tvos": "FFmpeg-all-d86bae00c5cb-tvos.zip",
+        "tvsimulator": "FFmpeg-all-d86bae00c5cb-tvsimulator.zip"
       }
     },
     "libass": {
@@ -62,18 +62,18 @@
     "libmpv": {
       "frameworks": {
         "Libmpv": {
-          "asset": "Libmpv-f57a0483352e.xcframework.zip",
-          "checksum": "04c9ce36e19d98acba789a024ba3832dddfb1dc8e97fea83c4f2873603a87222"
+          "asset": "Libmpv-7df65163fa4a.xcframework.zip",
+          "checksum": "70a07e9572cee3a6f322691c8ebbac909ca464c252be2fa1faeebf2653e80e55"
         }
       },
-      "key": "f57a0483352e",
+      "key": "7df65163fa4a",
       "prebuilt": {
-        "ios": "libmpv-all-f57a0483352e-ios.zip",
-        "isimulator": "libmpv-all-f57a0483352e-isimulator.zip",
-        "maccatalyst": "libmpv-all-f57a0483352e-maccatalyst.zip",
-        "macos": "libmpv-all-f57a0483352e-macos.zip",
-        "tvos": "libmpv-all-f57a0483352e-tvos.zip",
-        "tvsimulator": "libmpv-all-f57a0483352e-tvsimulator.zip"
+        "ios": "libmpv-all-7df65163fa4a-ios.zip",
+        "isimulator": "libmpv-all-7df65163fa4a-isimulator.zip",
+        "maccatalyst": "libmpv-all-7df65163fa4a-maccatalyst.zip",
+        "macos": "libmpv-all-7df65163fa4a-macos.zip",
+        "tvos": "libmpv-all-7df65163fa4a-tvos.zip",
+        "tvsimulator": "libmpv-all-7df65163fa4a-tvsimulator.zip"
       }
     }
   },
